@@ -68,6 +68,10 @@ const App = () => {
                 },
                 required: ['query'],
             },
+            execute: async (params) => {
+                // Simulate an API call
+                return `Searching for products with query: ${params.query} in category: ${params.category || 'all'}`;
+            },
         },
         // Add more tools as needed
     ];
@@ -87,16 +91,6 @@ const App = () => {
         return null; // No intent match
     };
 
-    // Tool execution handler
-    const handleToolExecution = async (toolName, params) => {
-        // Handle different tools
-        if (toolName === 'search_products') {
-            // Call your actual API here
-            return `Found 3 products matching "${params.query}"`;
-        }
-        return null;
-    };
-
     return (
         <div>
             <h1>My E-commerce App</h1>
@@ -114,7 +108,6 @@ const App = () => {
                 }}
                 tools={tools}
                 intentMatcher={matchIntent}
-                onToolExecution={handleToolExecution}
             />
         </div>
     );
@@ -132,8 +125,7 @@ const App = () => {
 | `position`        | string   | `'bottom-right'`                         | Position of the chat widget ('bottom-right', 'bottom-left', 'top-right', 'top-left') |
 | `theme`           | object   | See below                                | Theme customization object                                                           |
 | `tools`           | array    | `[]`                                     | Array of tool objects for function calling                                           |
-| `intentMatcher`   | function | `null`                                   | Function to match user input to tool intents                                         |
-| `onToolExecution` | function | `() => {}`                               | Function called when a tool should be executed                                       |
+| `intentMatcher`   | function | `null`                                   | Function to match user input to tool intents                                         |                                      |
 | `avatar`          | string   | `null`                                   | URL to the avatar image for the assistant                                            |
 | `chatBubbleIcon`  | string   | `null`                                   | URL to the chat icon for the widget                                                  |
 | `customStyles`    | object   | `{}`                                     | Custom styles for various components                                                 |
@@ -185,6 +177,11 @@ Each tool should follow this format:
     },
     required: ['requiredParam1', 'requiredParam2']
   }
+  execute: async (params) => {
+    // Function to execute the tool
+    // This can be an API call or any other logic
+    return `Executed ${name} with params: ${JSON.stringify(params)}`;
+  }
 }
 ```
 
@@ -202,18 +199,6 @@ async function intentMatcher(message, tools) {
             // Parameter values for the tool
         },
     };
-}
-```
-
-## Tool Execution Function
-
-The tool execution function should have this signature:
-
-```js
-async function onToolExecution(toolName, params) {
-    // Execute the tool with the given parameters
-    // Return a string response or null
-    return 'Result of tool execution';
 }
 ```
 

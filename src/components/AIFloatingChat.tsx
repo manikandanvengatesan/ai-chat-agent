@@ -14,7 +14,6 @@ interface AIFloatingChatProps {
     theme?: ITheme;
     tools?: ITool[];
     intentMatcher?: IIntentMatcherFunction;
-    onToolExecution?: IToolExecutionFunction;
     avatar?: string | null;
     chatBubbleIcon?: string | null;
     chatHeader?: string;
@@ -28,15 +27,14 @@ const AIFloatingChat = (props: AIFloatingChatProps) => {
         aiProvider = 'openai',
         apiKey,
         modelName,
+        tools = [],
+        intentMatcher = null,
         welcomeMessage = 'Hey there! How can I help you today?',
         theme = {
             primaryColor: '#007bff',
             secondaryColor: '#f8f9fa',
             textColor: '#212529',
         },
-        tools = [],
-        intentMatcher = null,
-        onToolExecution = async () => null,
         avatar = null,
         chatBubbleIcon = null,
         customStyles = {},
@@ -92,7 +90,13 @@ const AIFloatingChat = (props: AIFloatingChatProps) => {
             }
 
             if (toolMatch) {
-                const toolResult = await onToolExecution(toolMatch.tool, toolMatch.params);
+                const tool = tools.find((t) => t.name === toolMatch.tool);
+
+                if (!tool) {
+                    throw new Error(`Tool '${toolMatch.tool}' not found`);
+                }
+
+                const toolResult = await tool.execute(toolMatch.params);
 
                 setMessages((prev) => [
                     ...prev,

@@ -26,6 +26,7 @@ export interface ITool {
     name: string;
     description: string;
     parameters: IToolParameters;
+    execute: IToolExecutionFunction;
 }
 
 export interface IToolMatch {
@@ -35,7 +36,7 @@ export interface IToolMatch {
 
 export type IIntentMatcherFunction = (message: string, tools: ITool[]) => Promise<IToolMatch | null>;
 
-export type IToolExecutionFunction = (toolName: string, params: Record<string, any>) => Promise<string | null>;
+export type IToolExecutionFunction = (params: Record<string, any>) => Promise<string | null>;
 
 export interface IMessage {
     role: 'user' | 'assistant';
