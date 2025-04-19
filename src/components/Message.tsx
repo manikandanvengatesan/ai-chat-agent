@@ -23,7 +23,7 @@ const Message = (props: IMessageProps) => {
             <div className="ai-chat-bubble">
                 <ReactMarkdown
                     components={{
-                        p: ({ node, ...props }) => <p className="ai-chat-content" {...props} />,
+                        p: ({ ...props }) => <p className="ai-chat-content" {...props} />,
                     }}
                 >
                     {content}

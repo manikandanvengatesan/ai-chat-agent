@@ -1,4 +1,4 @@
-import { AIProviderInstance, ISendMessageOptions, IMessage } from '../types';
+import { AIProviderInstance, ISendMessageOptions } from '../types';
 
 interface IProviders {
     [key: string]: AIProviderInstance;

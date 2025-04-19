@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAIChat } from '../hooks/useAIChat';
 import ChatBubble from './ChatBubble';
 import ChatWindow from './ChatWindow';
-import { ITheme, ICustomStyles, ITool, IIntentMatcherFunction, IToolExecutionFunction, IMessage } from '../types';
+import { ITheme, ICustomStyles, ITool, IIntentMatcherFunction, IMessage } from '../types';
 import '../styles/index.css';
 
 interface AIFloatingChatProps {

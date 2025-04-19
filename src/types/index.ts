@@ -31,12 +31,12 @@ export interface ITool {
 
 export interface IToolMatch {
     tool: string;
-    params: Record<string, any>;
+    params: Record<string, unknown>;
 }
 
 export type IIntentMatcherFunction = (message: string, tools: ITool[]) => Promise<IToolMatch | null>;
 
-export type IToolExecutionFunction = (params: Record<string, any>) => Promise<string | null>;
+export type IToolExecutionFunction = (params: Record<string, unknown>) => Promise<string | null>;
 
 export interface IMessage {
     role: 'user' | 'assistant';
