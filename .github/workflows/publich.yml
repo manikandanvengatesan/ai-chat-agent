@@ -1,0 +1,93 @@
+# .github/workflows/publish.yml
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup Git user
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Bump package version based on commit message
+        id: version-bump
+        run: |
+          # Get the latest commit message
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          
+          # Get current version from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Determine version bump type based on commit message
+          BUMP_TYPE="patch"  # Default to patch
+          
+          if [[ "$COMMIT_MSG" == *"refactor"* ]]; then
+            BUMP_TYPE="major"
+            echo "Detected breaking change in commit"
+          elif [[ "$COMMIT_MSG" == *"feat:"* ]]; then
+            BUMP_TYPE="minor"
+            echo "Detected feature in commit"
+          elif [[ "$COMMIT_MSG" == *"fix:"* ]]; then
+            BUMP_TYPE="patch" 
+            echo "Detected bugfix in commit"
+          else
+            echo "No specific version bump detected in commit message, using default: patch"
+          fi
+          
+          # Use npm version to update the version accordingly
+          npm version "$BUMP_TYPE" --no-git-tag-version
+          
+          # Get new version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "Bumped version from $CURRENT_VERSION to $NEW_VERSION"
+
+      - name: Build package
+        run: npm run build
+
+      - name: Commit version bump
+        run: |
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.version-bump.outputs.new_version }} [skip ci]"
+
+      - name: Push changes back to repo
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
